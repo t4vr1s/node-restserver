@@ -1,6 +1,11 @@
 # Dependency directories
 node_modules/
 
+# dotenv environment variables file
+.env
+.env.test
+.env*.local
+
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/tasks.json

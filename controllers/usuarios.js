@@ -1,38 +1,62 @@
 const { response, request } = require('express')
+const bcrypt = require('bcrypt')
+const Usuario = require('../models/usuario')
 
-const usuariosGet = (req = request, res = response) => {
-  const { query, nombre = 'sin nombre', apikey, limit = 5, page = 1 } = req.query
+const usuariosGet = async (req = request, res = response) => {
+  const { limite = 5, desde = 0 } = req.query
+  const query = { estado: true }
+  const [total, usuarios] = await Promise.all([
+    Usuario.countDocuments(query),
+    Usuario.find(query)
+      .skip(Number(desde))
+      .limit(Number(limite))
+  ])
   res.json({
-    msg: 'get api - desde el controlador',
-    query,
-    nombre,
-    apikey,
-    limit,
-    page
+    total,
+    usuarios
   })
 }
-const usuariosPost = (req = request, res = response) => {
-  const { body } = req
+
+const usuariosPost = async (req = request, res = response) => {
+  const { nombre, correo, password, rol } = req.body
+  const usuario = new Usuario({ nombre, correo, password, rol })
+  // encriptar password
+  const salt = bcrypt.genSaltSync()
+  usuario.password = bcrypt.hashSync(password, salt)
+  // guardar db
+  await usuario.save()
   res.json({
-    msg: 'post api - desde el controlador',
-    body
+    usuario
   })
 }
-const usuariosPut = (req = request, res = response) => {
+
+const usuariosPut = async (req = request, res = response) => {
   const { id } = req.params
-  res.json({
-    msg: 'put api - desde el controlador',
-    id
-  })
+  const { password, google, ...newBody } = req.body
+  console.log(newBody)
+  // TODO: validar contra db
+  if (password) {
+    // encriptar password
+    const salt = bcrypt.genSaltSync()
+    newBody.password = bcrypt.hashSync(password, salt)
+  }
+  const usuario = await Usuario.findByIdAndUpdate(id, newBody)
+  res.json(usuario)
 }
+
 const usuariosPatch = (req, res = response) => {
   res.json({
     msg: 'patch api - desde el controlador'
   })
 }
-const usuariosDelete = (req, res = response) => {
+
+const usuariosDelete = async (req, res = response) => {
+  const { id } = req.params
+  const usuario = await Usuario.findByIdAndUpdate(id, {
+    estado: false
+  })
   res.json({
-    msg: 'delete api - desde el controlador'
+    usuario
   })
 }
 
