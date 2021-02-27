@@ -10,6 +10,7 @@ class Server {
     this.conectarDB()
     // routes
     this.usuariosPath = '/api/usuarios'
+    this.authPath = '/api/auth'
     // middlewares
     this.middlewares()
     // rutas de la app
@@ -30,6 +31,7 @@ class Server {
   }
 
   routes () {
+    this.app.use(this.authPath, require('../routes/auth'))
     this.app.use(this.usuariosPath, require('../routes/usuarios'))
   }
 
