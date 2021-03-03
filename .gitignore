@@ -1,6 +1,10 @@
 # Dependency directories
 node_modules/
 
+#directories
+uploads/productos/**.*
+uploads/usuarios/**.*
+
 # dotenv environment variables file
 .env
 .env.test
